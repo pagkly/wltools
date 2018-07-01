@@ -1,0 +1,92 @@
+#!/bin/bash
+setvarb() {
+userid=$(awk -F: '!/root/ && /(\/bin\/bash)/ {print $1}' /etc/passwd)
+#wlinterface=$(awk '/wifi/ {printf $1}' <<< "$(nmcli d)")
+wlinterface=$(awk '!/mon/ && $1=="Interface" {printf $2}' <<< "$(iw dev)")
+moninterface="mon0"
+wpasupp="/etc/wpa_supplicant.conf"
+userhomedir="/home/$userid"
+echo "I am $userid"
+popfn=""
+startno="0"
+
+wpscript="./2wpcommand"
+extfunc="./functorun"
+
+#2wpcommand
+#wptooldir="$userhomedir/Documents/Docs/Linux/Kali/Tools"
+#wptooldir="$userhomedir/Documents/Docs/mlinuxproject/wltools/wptools"
+wptooldir="./wptools"
+wp12dir="$wptooldir/wifiphisher-1.2"
+wp12r2dir="$wptooldir/wifiphisher-1.2r2"
+jaminterface=${wlinterface}mon3
+macchanging="off"
+jammode=2
+stopaftertime=180
+#extfunc2="./funcsh"
+wptargnotes="./wptargnotes"
+
+#4wpspintext
+mc=on
+ssidlog="./wps$ssid"
+wpscript="./2wpcommand"
+extfunc2="./func"
+
+#4connectwifikey
+#| head -2 | tail -1)
+#nmcli c
+#nmcli d wifi list
+}
+sourcefn() {
+fntoadd=$1
+refscript=$2
+copiedto=$3
+sed -rn "/(^$1\(\)[ ][{])/,/^}/p" $refscript | tee -a $copiedto
+return 0
+}
+sourcescript() {
+fntoadd=$1
+refscript=$2
+copiedto=$3
+echo '#!/bin/bash' | tee "$copiedto"
+sourcefn "(setvarb|sourcefn|sourcescript)" "./3callwlfunction" "$copiedto"
+#sed -rn "/(^\#\#\#$1/,/^\#\#\#$1}/p" $refscript | tee -a $copiedto
+sed -rn '/###'$1'/,/###'$1'/p' $refscript | tee -a "$copiedto"
+#echo "setvarb" | tee -a $copiedto
+return 0
+}
+setvarb
+restartwlinterface() {
+echo "$userid"
+echo "$wlinterface"
+sudo wpa_cli terminate ;
+sudo killall python2 \
+aircrack-ng \
+wifiphisher \
+dhclient \
+wpa_supplicant \
+NetworkManager ;\
+#avahi-daemon
+sudo airmon-ng stop mon0 ;\
+sudo airmon-ng check kill ;\
+allmon=($(awk '/mon/ {printf $1}' <<< "$(ifconfig)"))
+if [[ -n $allmon ]] ; then
+for f in ${#allmon[@]} ; do
+sudo iw dev ${allmon[$[f]-1]} del
+done
+fi
+#sudo iw dev $wlinterface del ;\
+sudo ifconfig $wlinterface down ;\
+sudo ifconfig $wlinterface up ;\
+sudo modprobe b43 -r ;\
+sudo modprobe b43 ;\
+sleep 1
+#rfkill unblock wlan wifi ;\
+#sudo service network-manager restart ;\
+sudo systemctl restart NetworkManager
+sudo killall nm-applet ;\
+nohup nm-applet &
+sleep 3
+return 0
+}
+restartwlinterface

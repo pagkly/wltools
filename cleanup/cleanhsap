@@ -1,0 +1,82 @@
+#!/bin/bash
+sourcedir1=~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/wifiphisher/handshakes
+file=$(find $sourcedir1 -mindepth 1 -maxdepth 1 -printf '%f\n' | sed -e 's,^./,,' -e 's, ,ws,' -e 's,Hufflepuff.Common.Room,HufflepuffwsCommonwsRoom,' | tr '\n' ' ')
+#file=$(ls -f $sourcedir1 | sed -e 's,^./,,' -e 's,Hufflepuff.Common.Room,HufflepuffwsCommonwsRoom,'| tr '\n' ' ')
+echo $file
+#sleep 100
+
+filec=$(echo $file | wc -w)
+echo $filec
+#sleep 100
+
+comparecount=0
+for f in $file
+do
+
+if [[ $f =~ (ws) ]]
+then
+f=$(echo "$f" | sed -e 's,ws, ,' | sed -e 's,CommonwsRoom,Common Room,')
+echo "change $f"
+if [[ $sd1size -lt 500000 ]] || [[ $sd1size -gt 10000000 ]] || [[ $f =~ (.kismet|.csv|.netxml) ]]
+then
+echo "delete"
+sudo rm -rf "$sourcedir1/$f"
+fi
+fi
+
+
+if [[ -f "$sourcedir1/$f"  ]] && [[ ! $f =~ (password) ]]
+then
+comparecount=$[$comparecount+1]
+echo "t2= $f"
+sd1size=$(wc -c "$sourcedir1/$f" | cut -d' ' -f1)
+if [[ $sd1size -gt 1000 ]] && [[ $sd1size -lt 10000000 ]] && [[ $f =~ (.cap) ]]
+then
+echo "safe"
+elif [[ $sd1size -lt 1000 ]] || [[ $sd1size -gt 10000000 ]] || [[ $f =~ (.kismet|.csv|.netxml) ]]
+then
+echo "delete"
+sudo rm -rf "$sourcedir1/$f"
+fi
+
+fi
+
+done
+
+echo "$comparecount"
+
+filec=$(echo $file | wc -w)
+echo $filec
+
+
+apcdir=~/Documents/Docs
+file=$(find $apcdir -mindepth 1 -maxdepth 1 -printf '%f\n' | sed -e 's,^./,,' -e 's, ,ws,' -e 's,Hufflepuff.Common.Room,HufflepuffwsCommonwsRoom,' | tr '\n' ' ')
+for f in $file
+do
+filecheck="$apcdir/$f"
+if [[ $f =~ [.](kismet|csv|netxml)$ ]]
+then
+echo "delete $filecheck"
+sudo rm -rf "$filecheck"
+fi
+
+
+if [[ -f "$filecheck"  ]] && [[ ! $f =~ (password) ]] && [[ $f =~ [.](cap)$ ]]
+then
+echo "t2= $f"
+sd1size=$(wc -c "$filecheck" | cut -d' ' -f1)
+if [[ $sd1size -gt 500000 ]] && [[ $sd1size -lt 10000000 ]] 
+then
+echo "safe"
+elif [[ $sd1size -lt 500000 ]] || [[ $sd1size -gt 10000000 ]]
+then
+echo "delete"
+sudo rm -rf "$filecheck"
+fi
+fi
+
+done
+
+sleep 60
+
+

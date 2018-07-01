@@ -1,0 +1,78 @@
+#!/bin/bash
+wpfolder=~/Documents/Docs/Linux/Kali/Tools/wifiphisher-1.2r2/wifiphisher
+stationnamesdir0=$wpfolder/dnsmasq.leases
+stationnamesdir=$wpfolder/dnsmasq1.leases
+stationnamesdir2=$wpfolder/dnsmasqanalysis
+rm $stationnamesdir
+cp $stationnamesdir0 $stationnamesdir
+counter=1
+
+dnsanalysis() {
+textline=$(cat $stationnamesdir | wc -l)
+#textlines=1
+#for i in {$textlines..$textline}
+#do
+#echo "$i"
+#thisline=$(read -r $i < $stationnamesdir)
+##b0:e1:7e:c9:42:06 10.0.0.44 HUAWEI_Mate_10-d958ef7b63 01:b0:e1:7e:c9:42:06
+#number=$(cat $stationnamesdir | grep "$f" | wc -l)
+##sudo sed -i "s,$f\n,,g" $stationnamesdir
+#echo "$thisline $number"
+#| tee -a $stationnamesdir2
+#done
+sed -i "s/(\n){0,}//g" $stationnamesdir
+
+
+while [ $counter -le $textline ]
+do
+#thisline=$(read -r $counter < $stationnamesdir)
+#thisline=$(head -$counter $stationnamesdir)
+thisline=$(sed "${counter}q;d" $stationnamesdir)
+thislinedel=$(echo "$thisline" | awk '{print $1}')
+charcount=$(echo $thisline | wc -m)
+#echo $charcount
+if [[ $charcount -le 1 ]]
+then
+echo "emptyline"
+sed -i "${counter}d" $stationnamesdir
+#sleep 1
+elif [[ $charcount -le 7 ]]
+then
+number=$(cat $stationnamesdir | grep "$thisline" | wc -l)
+sed -i "/$thislinedel/d" $stationnamesdir
+echo "$thisline $number"| tee -a $stationnamesdir2
+sleep 5
+fi
+
+
+((counter++))
+done
+
+##for i in {1..5} do ;\ echo "$i" ;\ done
+}
+
+dnsav2() {
+while [[ ! -z $(cat $stationnamesdir) ]]
+do
+thisline=$(sed "1q;d" $stationnamesdir)
+thislinedel=$(echo "$thisline" | awk '{print $2}')
+charcount=$(echo $thisline | wc -m)
+#echo $charcount
+if [[ $charcount -le 1 ]]
+then
+echo "emptyline"
+sed -i "1d" $stationnamesdir
+#sleep 1
+elif [[ ! $charcount -le 1 ]]
+then
+number=$(cat $stationnamesdir | grep "$thislinedel" | wc -l)
+sed -i "/$thislinedel/d" $stationnamesdir
+echo "$thisline $number"| tee -a $stationnamesdir2
+sleep 1
+fi
+((counter++))
+done
+##for i in {1..5} do ;\ echo "$i" ;\ done
+}
+
+dnsanalysis

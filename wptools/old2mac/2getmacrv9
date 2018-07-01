@@ -1,0 +1,45 @@
+#!/bin/bash
+setvar() {
+wpscript="./2wpcommand"
+extfunc="./func.sh"
+userid=$(awk -F: '!/root/ && /(\/bin\/bash)/ {print $1}' /etc/passwd)
+echo "I am $userid"
+}
+getmacrv9() {
+setvar
+sudo chmod +x $wpscript ;\
+
+exitfn() {
+trap SIGINT
+echo "I am $userid"
+#sudo killall python2 ;
+sudo killall 2wpcommand ;
+sudo killall xterm ;
+sudo killall wifiphisher ;
+sudo killall aircrack-ng ;
+sed -n "/^restartwlinterface()/,/^}/p" $wpscript | tee -a $extfunc
+source $extfunc
+restartwlinterface
+sleep 5
+echo "exitting"
+exit
+}
+
+trap "exitfn" INT
+
+
+runcinroot() {
+sudo sh -c "$1"
+}
+
+cinroot=$(cat <<EOF
+gnome-terminal -e "$wpscript"
+EOF
+)
+
+runcinroot "$cinroot"
+while true ; do sleep 3600 ; done
+
+trap SIGINT
+}
+getmacrv9
